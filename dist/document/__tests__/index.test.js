@@ -1,94 +1,98 @@
-import createDocument, { assertDocument } from '../';
-import { mockDid, mockContent, mockPublickKey1, mockPublickKey2, mockService1, mockService2 } from './mocks';
-
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const __1 = __importStar(require("../"));
+const mocks_1 = require("./mocks");
 // @ts-ignore
 global.Date = class Date {
     constructor() {
         this.toISOString = () => '2019-03-18T15:55:38.636Z';
     }
 };
-
 jest.mock('../../utils', () => ({
     ...jest.requireActual('../../utils'),
     generateRandomString: jest.fn(() => 'randomString'),
 }));
-
 beforeEach(() => {
     jest.clearAllMocks();
 });
-
 describe('createDocument', () => {
     it('should create document from scratch', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(document.getContent()).toEqual(mockContent);
+        const document = await __1.default(mocks_1.mockDid);
+        expect(document.getContent()).toEqual(mocks_1.mockContent);
     });
-
     it('should create document from provided content', async () => {
-        const content = { ...mockContent, created: '2019-01-01' };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, created: '2019-01-01' };
+        const document = await __1.default(mocks_1.mockDid, content);
         expect(document.getContent()).toEqual(content);
     });
 });
-
 describe('getContent', () => {
     it('should remove unnecessary properties', async () => {
-        const content = { ...mockContent, publicKey: [], service: undefined };
-        const document = await createDocument(mockDid, content);
-
-        expect(document.getContent()).toEqual(mockContent);
+        const content = { ...mocks_1.mockContent, publicKey: [], service: undefined };
+        const document = await __1.default(mocks_1.mockDid, content);
+        expect(document.getContent()).toEqual(mocks_1.mockContent);
     });
 });
-
 describe('addPublicKey', () => {
     it('should add public key successfully', async () => {
-        const document = await createDocument(mockDid);
+        const document = await __1.default(mocks_1.mockDid);
         const pk = document.addPublicKey({
             type: 'myType',
             publicKeyHex: '1A2B3C',
         });
-
         const expectedResult = {
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#randomString',
             controller: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
             type: 'myType',
             publicKeyHex: '1A2B3C',
         };
-
         expect(pk).toEqual(expectedResult);
         expect(document.getContent()).toEqual({
-            ...mockContent,
+            ...mocks_1.mockContent,
             publicKey: [expectedResult],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should add public key successfully with prefix', async () => {
-        const document = await createDocument(mockDid);
+        const document = await __1.default(mocks_1.mockDid);
         const pk = document.addPublicKey({
             type: 'myType',
             publicKeyHex: '1A2B3C',
         }, { idPrefix: 'foobar-' });
-
         const expectedResult = {
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#foobar-randomString',
             controller: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
             type: 'myType',
             publicKeyHex: '1A2B3C',
         };
-
         expect(pk).toEqual(expectedResult);
         expect(document.getContent()).toEqual({
-            ...mockContent,
+            ...mocks_1.mockContent,
             publicKey: [expectedResult],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should not accept duplicate ids', async () => {
-        const document = await createDocument(mockDid);
-
+        const document = await __1.default(mocks_1.mockDid);
         expect(() => {
             document.addPublicKey({
                 id: 'myId1',
@@ -104,122 +108,90 @@ describe('addPublicKey', () => {
             });
         }).toThrow('PublicKey with same did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#myId1 already exists.');
     });
-
     it('should not accept publicKey without type', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addPublicKey({
-                controller: 'myController',
-                publicKeyHex: '1A2B3C',
-            })
-        ).toThrow('PublicKey requires `type` to be defined.');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addPublicKey({
+            controller: 'myController',
+            publicKeyHex: '1A2B3C',
+        })).toThrow('PublicKey requires `type` to be defined.');
     });
-
     it('should not accept publicKey without a `publicKey` prefixed property', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addPublicKey({
-                type: 'myType1',
-                controller: 'myController',
-            })
-        ).toThrow('Property prefixed by `publicKey` is required and must be unique');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addPublicKey({
+            type: 'myType1',
+            controller: 'myController',
+        })).toThrow('Property prefixed by `publicKey` is required and must be unique');
     });
-
     it('should not accept publicKey with multiple properties prefixed with `publicKey`', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addPublicKey({
-                type: 'myType1',
-                controller: 'myController',
-                publicKeyHex: '1A2B3C',
-                publicKeyFoo: 'bar',
-            })
-        ).toThrow('Property prefixed by `publicKey` is required and must be unique');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addPublicKey({
+            type: 'myType1',
+            controller: 'myController',
+            publicKeyHex: '1A2B3C',
+            publicKeyFoo: 'bar',
+        })).toThrow('Property prefixed by `publicKey` is required and must be unique');
     });
-
     it('should not accept publicKey with an invalid value encoding', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addPublicKey({
-                type: 'myType1',
-                controller: 'myController',
-                publicKeyFoo: 'bar',
-            })
-        ).toThrow('Encoding `publicKeyFoo` is invalid');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addPublicKey({
+            type: 'myType1',
+            controller: 'myController',
+            publicKeyFoo: 'bar',
+        })).toThrow('Encoding `publicKeyFoo` is invalid');
     });
-
     it('should not accept publicKey with invalid id prefix', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addPublicKey({
-                type: 'myType',
-                publicKeyHex: '1A2B3C',
-            }, { idPrefix: 'foobar#' })
-        ).toThrow('Id prefix should be a string without reserved characters: ["#", ";"]');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addPublicKey({
+            type: 'myType',
+            publicKeyHex: '1A2B3C',
+        }, { idPrefix: 'foobar#' })).toThrow('Id prefix should be a string without reserved characters: ["#", ";"]');
     });
 });
-
 describe('revokePublicKey', () => {
     it('should revoke publicKey with full id successfully', async () => {
-        const document = await createDocument(mockDid, mockContent);
-
+        const document = await __1.default(mocks_1.mockDid, mocks_1.mockContent);
         document.revokePublicKey('did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1');
-        expect(document.getContent()).toEqual({ ...mockContent });
-
-        document.addPublicKey({ ...mockPublickKey1, id: 'PK1' });
-        document.addPublicKey({ ...mockPublickKey2, id: 'PK2' });
+        expect(document.getContent()).toEqual({ ...mocks_1.mockContent });
+        document.addPublicKey({ ...mocks_1.mockPublickKey1, id: 'PK1' });
+        document.addPublicKey({ ...mocks_1.mockPublickKey2, id: 'PK2' });
         document.revokePublicKey('did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1');
         expect(document.getContent()).toEqual({
-            ...mockContent,
-            publicKey: [mockPublickKey2],
+            ...mocks_1.mockContent,
+            publicKey: [mocks_1.mockPublickKey2],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should revoke publicKey with short id successfully', async () => {
-        const content = { ...mockContent, publicKey: [mockPublickKey1, mockPublickKey2] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, publicKey: [mocks_1.mockPublickKey1, mocks_1.mockPublickKey2] };
+        const document = await __1.default(mocks_1.mockDid, content);
         document.revokePublicKey('PK1');
-
         expect(document.getContent()).toEqual({
-            ...mockContent,
-            publicKey: [mockPublickKey2],
+            ...mocks_1.mockContent,
+            publicKey: [mocks_1.mockPublickKey2],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should revoke publicKey and revoke associated authentication', async () => {
         const content = {
-            ...mockContent,
-            publicKey: [mockPublickKey1, mockPublickKey2],
+            ...mocks_1.mockContent,
+            publicKey: [mocks_1.mockPublickKey1, mocks_1.mockPublickKey2],
             authentication: ['did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1'],
         };
-        const document = await createDocument(mockDid, content);
-
+        const document = await __1.default(mocks_1.mockDid, content);
         document.revokePublicKey('PK1');
-
         expect(document.getContent()).toEqual({
-            ...mockContent,
-            publicKey: [mockPublickKey2],
+            ...mocks_1.mockContent,
+            publicKey: [mocks_1.mockPublickKey2],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
 });
-
 describe('addAuthentication', () => {
     it('should add authentication successfully', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
-        const content = { ...mockContent, publicKey: [mockPublickKey1] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, publicKey: [mocks_1.mockPublickKey1] };
+        const document = await __1.default(mocks_1.mockDid, content);
         const auth = document.addAuthentication(id);
-
         expect(auth).toEqual(id);
         expect(document.getContent()).toEqual({
             ...content,
@@ -227,70 +199,54 @@ describe('addAuthentication', () => {
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should add authentication with short id successfully', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
-        const content = { ...mockContent, publicKey: [mockPublickKey1] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, publicKey: [mocks_1.mockPublickKey1] };
+        const document = await __1.default(mocks_1.mockDid, content);
         const auth = document.addAuthentication('PK1');
-
         expect(auth).toEqual(id);
         expect(document.getContent()).toEqual({
-            ...mockContent,
-            publicKey: [mockPublickKey1],
+            ...mocks_1.mockContent,
+            publicKey: [mocks_1.mockPublickKey1],
             authentication: [id],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should fail if same id already exists', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
-        const content = { ...mockContent, publicKey: [mockPublickKey1], authentication: [id] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, publicKey: [mocks_1.mockPublickKey1], authentication: [id] };
+        const document = await __1.default(mocks_1.mockDid, content);
         expect(() => document.addAuthentication(id)).toThrow('Authentication with same did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1 already exists.');
     });
-
     it('should fail if no publicKey with same id', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
-        const content = { ...mockContent };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent };
+        const document = await __1.default(mocks_1.mockDid, content);
         expect(() => document.addAuthentication(id)).toThrow('Invalid authentication');
     });
-
     it('should fail auth is not a string', async () => {
-        const content = { ...mockContent, publicKey: [mockPublickKey1] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, publicKey: [mocks_1.mockPublickKey1] };
+        const document = await __1.default(mocks_1.mockDid, content);
         expect(() => document.addAuthentication({ id: 'PK1' })).toThrow('Invalid authentication');
     });
 });
-
 describe('removeAuthentication', () => {
     it('should remove authentication successfully', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
-        const content = { ...mockContent, authentication: [id] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, authentication: [id] };
+        const document = await __1.default(mocks_1.mockDid, content);
         document.removeAuthentication(id);
-
-        expect(document.getContent()).toEqual({ ...mockContent, updated: '2019-03-18T15:55:38.636Z' });
+        expect(document.getContent()).toEqual({ ...mocks_1.mockContent, updated: '2019-03-18T15:55:38.636Z' });
     });
-
     it('should not update if no id found', async () => {
         const id1 = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const id2 = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK2';
-        const content = { ...mockContent, publicKey: [mockPublickKey1, mockPublickKey2] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, publicKey: [mocks_1.mockPublickKey1, mocks_1.mockPublickKey2] };
+        const document = await __1.default(mocks_1.mockDid, content);
         document.removeAuthentication(id1);
         expect(document.getContent()).toEqual(content);
-
         document.addAuthentication('PK2');
         document.removeAuthentication(id1);
-
         expect(document.getContent()).toEqual({
             ...content,
             authentication: [id2],
@@ -298,53 +254,45 @@ describe('removeAuthentication', () => {
         });
     });
 });
-
 describe('addService', () => {
     it('should add service successfully', async () => {
-        const document = await createDocument(mockDid);
+        const document = await __1.default(mocks_1.mockDid);
         const srvc = document.addService({
             type: 'myServiceType',
             serviceEndpoint: 'http://service.foo.bar',
         });
-
         const expectedResult = {
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG;randomString',
             type: 'myServiceType',
             serviceEndpoint: 'http://service.foo.bar',
         };
-
         expect(srvc).toEqual(expectedResult);
         expect(document.getContent()).toEqual({
-            ...mockContent,
+            ...mocks_1.mockContent,
             service: [expectedResult],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should add service successfully with prefix', async () => {
-        const document = await createDocument(mockDid);
+        const document = await __1.default(mocks_1.mockDid);
         const srvc = document.addService({
             type: 'myServiceType',
             serviceEndpoint: 'http://service.foo.bar',
         }, { idPrefix: 'foobar-' });
-
         const expectedResult = {
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG;foobar-randomString',
             type: 'myServiceType',
             serviceEndpoint: 'http://service.foo.bar',
         };
-
         expect(srvc).toEqual(expectedResult);
         expect(document.getContent()).toEqual({
-            ...mockContent,
+            ...mocks_1.mockContent,
             service: [expectedResult],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should not accept duplicate ids', async () => {
-        const document = await createDocument(mockDid);
-
+        const document = await __1.default(mocks_1.mockDid);
         expect(() => {
             document.addService({
                 id: 'foo',
@@ -358,38 +306,25 @@ describe('addService', () => {
             });
         }).toThrow('Service with same did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG;foo already exists.');
     });
-
     it('should not accept service without type', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addService({
-                serviceEndpoint: 'hhttp://service.foo.bar',
-            })
-        ).toThrow('Service requires `type` to be defined.');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addService({
+            serviceEndpoint: 'hhttp://service.foo.bar',
+        })).toThrow('Service requires `type` to be defined.');
     });
-
     it('should not accept service without serviceEndpoint', async () => {
-        const document = await createDocument(mockDid);
-
-        expect(() =>
-            document.addService({
-                type: 'myServiceType',
-            })
-        ).toThrow('Service requires `serviceEndpoint` to be defined.');
+        const document = await __1.default(mocks_1.mockDid);
+        expect(() => document.addService({
+            type: 'myServiceType',
+        })).toThrow('Service requires `serviceEndpoint` to be defined.');
     });
-
     it('should accept service with additional properties', async () => {
-        const document = await createDocument(mockDid);
-
-        document.addService({ ...mockService1, id: 'Service1', foo: 'bar' });
-
-        expect(document.getContent().service[0]).toEqual({ ...mockService1, foo: 'bar' });
+        const document = await __1.default(mocks_1.mockDid);
+        document.addService({ ...mocks_1.mockService1, id: 'Service1', foo: 'bar' });
+        expect(document.getContent().service[0]).toEqual({ ...mocks_1.mockService1, foo: 'bar' });
     });
-
     it('should not accept service with invalid id prefix', async () => {
-        const document = await createDocument(mockDid);
-
+        const document = await __1.default(mocks_1.mockDid);
         expect(() => {
             document.addService({
                 type: 'myServiceType',
@@ -398,105 +333,82 @@ describe('addService', () => {
         }).toThrow('Id prefix should be a string without reserved characters: ["#", ";"]');
     });
 });
-
 describe('removeService', () => {
     it('should remove service with full id successfully', async () => {
         const fullId = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG;Service1';
-        const document = await createDocument(mockDid);
-
+        const document = await __1.default(mocks_1.mockDid);
         document.removeService(fullId);
-        expect(document.getContent()).toEqual(mockContent);
-
-        document.addService({ ...mockService1, id: 'Service1' });
-        document.addService({ ...mockService2, id: 'Service2' });
-
+        expect(document.getContent()).toEqual(mocks_1.mockContent);
+        document.addService({ ...mocks_1.mockService1, id: 'Service1' });
+        document.addService({ ...mocks_1.mockService2, id: 'Service2' });
         document.removeService(fullId);
         expect(document.getContent()).toEqual({
-            ...mockContent,
-            service: [mockService2],
+            ...mocks_1.mockContent,
+            service: [mocks_1.mockService2],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
-
     it('should remove service with short id successfully', async () => {
-        const content = { ...mockContent, service: [mockService1, mockService2] };
-        const document = await createDocument(mockDid, content);
-
+        const content = { ...mocks_1.mockContent, service: [mocks_1.mockService1, mocks_1.mockService2] };
+        const document = await __1.default(mocks_1.mockDid, content);
         document.removeService('Service2');
-
         expect(document.getContent()).toEqual({
-            ...mockContent,
-            service: [mockService1],
+            ...mocks_1.mockContent,
+            service: [mocks_1.mockService1],
             updated: '2019-03-18T15:55:38.636Z',
         });
     });
 });
-
 describe('assertDocument', () => {
     it('should assert document successfully', () => {
         const mockDocument = {
             '@context': ['https://w3id.org/did/v1', 'https://example.context.org'],
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
         };
-
-        expect(() => assertDocument(mockDocument)).not.toThrow();
+        expect(() => __1.assertDocument(mockDocument)).not.toThrow();
     });
-
     it('should throw if document is not a plain object', () => {
         const mockDocument = 'fooBar';
-
-        expect(() => assertDocument(mockDocument)).toThrow('Document content must be a plain object.');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('Document content must be a plain object.');
     });
-
     it('should throw if document has no context property', () => {
         const mockDocument = {
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
         };
-
-        expect(() => assertDocument(mockDocument)).toThrow('Document content must contain "@context" property.');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('Document content must contain "@context" property.');
     });
-
     it('should throw if document has context property with invalid type', () => {
         const mockDocument = {
             '@context': 123,
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
         };
-
-        expect(() => assertDocument(mockDocument)).toThrow('Document "@context" value must be a string or an ordered set.');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('Document "@context" value must be a string or an ordered set.');
     });
-
     it('should throw if document has multiple contexts but the first one is not the default', () => {
         const mockDocument = {
             '@context': ['fooBar', 'https://w3id.org/did/v1'],
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
         };
-
-        expect(() => assertDocument(mockDocument)).toThrow('First "@context" value must be: "https://w3id.org/did/v1". Found: "fooBar"');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('First "@context" value must be: "https://w3id.org/did/v1". Found: "fooBar"');
     });
-
     it('should throw if document has just one context and is not the default', () => {
         const mockDocument = {
             '@context': 'fooBar',
             id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
         };
-
-        expect(() => assertDocument(mockDocument)).toThrow('Document with only one "@context" value must be none other than: "https://w3id.org/did/v1". Found: "fooBar"');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('Document with only one "@context" value must be none other than: "https://w3id.org/did/v1". Found: "fooBar"');
     });
-
     it('should throw if document has no id property', () => {
         const mockDocument = {
             '@context': 'https://w3id.org/did/v1',
         };
-
-        expect(() => assertDocument(mockDocument)).toThrow('Document content must contain "id" property.');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('Document content must contain "id" property.');
     });
-
     it('should throw if document has an id with an invalid did', () => {
         const mockDocument = {
             '@context': 'https://w3id.org/did/v1',
             id: 'did:foo!bar',
         };
-
-        expect(() => assertDocument(mockDocument)).toThrow('Document "id" must be a valid DID. Found: "did:foo!bar"');
+        expect(() => __1.assertDocument(mockDocument)).toThrow('Document "id" must be a valid DID. Found: "did:foo!bar"');
     });
 });

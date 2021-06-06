@@ -2,7 +2,7 @@
   "name": "did-ipid",
   "version": "0.4.1",
   "description": "The IPID DID method implementation in JavaScript",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "module": "es/index.js",
   "homepage": "https://github.com/ipfs-shipyard/js-did-ipid#readme",
   "license": "MIT",
@@ -79,6 +79,8 @@
     "standard-version": "^6.0.1"
   },
   "dependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/mocha": "^8.2.2",
     "buffer": "^5.2.1",
     "libp2p-crypto": "^0.16.1",
     "lodash": "^4.17.11",

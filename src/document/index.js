@@ -1,3 +1,4 @@
+// @ts-ignore
 import { omitBy, isArray, isUndefined } from 'lodash';
 import service from './service';
 import publicKey from './publicKey';
@@ -20,7 +21,8 @@ class Document {
         return omitBy(this.#content, (prop) => isUndefined(prop) || (isArray(prop) && prop.length === 0));
     }
 
-    addPublicKey(props, options) {
+    addPublicKey(props, ...options) {
+        // @ts-ignore
         const { idPrefix } = { ...options };
 
         props.id = publicKey.createId(this.#content.id, props.id, { prefix: idPrefix });
@@ -70,6 +72,7 @@ class Document {
     }
 
     addService(props, options) {
+        // @ts-ignore
         const { idPrefix } = { ...options };
 
         props.id = service.createId(this.#content.id, props.id, { prefix: idPrefix });
