@@ -1,5 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.mockPem = exports.createMockIpfs = exports.mockDocument = exports.mockDid = exports.mockIpnsHash = exports.mockPath = exports.mockHash = void 0;
 exports.mockHash = 'zdpuApA2CCoPHQEoP4nResbK2dq2zawFX3verNkMFmNbpDnXZ';
 exports.mockPath = `/ipfs/${exports.mockHash}`;
@@ -38,6 +37,7 @@ const createMockIpfs = () => {
         rmKey(keyName);
         keychainKeys.push({ name: keyName });
     };
+
     return {
         isOnline: jest.fn(() => true),
         name: {
@@ -59,6 +59,7 @@ const createMockIpfs = () => {
         },
     };
 };
+
 exports.createMockIpfs = createMockIpfs;
 exports.mockPem = `
 -----BEGIN RSA PRIVATE KEY-----

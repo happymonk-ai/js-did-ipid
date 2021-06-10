@@ -77,7 +77,7 @@ class Ipid {
         } finally {
             await this.#removeKey(keyName);
         }
-    }
+    };
 
     #removeKey = async (keyName) => {
         const keysList = await this.#ipfs.key.list();
@@ -88,13 +88,13 @@ class Ipid {
         }
 
         await this.#ipfs.key.rm(keyName);
-    }
+    };
 
     #importKey = async (keyName, pem, password) => {
         await this.#removeKey(keyName);
 
         await this.#ipfs.key.import(keyName, pem, password);
-    }
+    };
 
     #generateKeyName = () =>
         `js-ipid-${generateRandomString()}`;

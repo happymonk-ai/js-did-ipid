@@ -1,7 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("./utils");
-const errors_1 = require("../utils/errors");
+Object.defineProperty(exports, '__esModule', { value: true });
+const utils_1 = require('./utils');
+const errors_1 = require('../utils/errors');
 const SEPARATOR = utils_1.SEPARATORS.PUBLIC_KEY;
 const REQUIRED = ['id', 'type', 'controller'];
 const ENCODINGS = [
@@ -14,6 +13,7 @@ const ENCODINGS = [
 ];
 const assertId = (publicKey, publicKeys) => {
     const collision = publicKeys.some((key) => utils_1.isEquivalentId(key.id, publicKey.id, SEPARATOR));
+
     if (collision) {
         throw new errors_1.DuplicatePublicKey(publicKey.id);
     }
@@ -27,6 +27,7 @@ const assertRequired = (publicKey) => {
 };
 const assertEncodings = (publicKey) => {
     const encodings = Object.keys(publicKey).filter((key) => key.includes('publicKey'));
+
     if (encodings.length !== 1) {
         throw new errors_1.InvalidPublicKey('Property prefixed by `publicKey` is required and must be unique');
     }
@@ -39,6 +40,7 @@ const assert = (publicKey, publicKeys) => {
     assertRequired(publicKey);
     assertEncodings(publicKey);
 };
+
 exports.default = {
     assert,
     separator: SEPARATOR,

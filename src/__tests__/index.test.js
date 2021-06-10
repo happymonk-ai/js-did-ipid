@@ -148,7 +148,8 @@ describe('update', () => {
     it('should update successfully', async () => {
         const operations = jest.fn();
         const ipid = createIpid(mockIpfs);
-        //@ts-ignore
+
+        // @ts-ignore
         ipid.resolve = jest.fn(() => mockDocument);
 
         const document = await ipid.update(mockPem, operations);

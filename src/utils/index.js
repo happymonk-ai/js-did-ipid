@@ -3,6 +3,7 @@ import crypto from 'libp2p-crypto';
 import { Buffer } from 'buffer';
 import { createFromPrivKey } from 'peer-id';
 import { InvalidDid } from './errors';
+import {customRandom, nanoid} from 'nanoid';
 
 export const pemToBuffer = async (pem, password) => {
     const key = await pify(crypto.keys.import)(pem, password);
@@ -43,6 +44,4 @@ export const isDidValid = (did) => {
 };
 
 export const generateRandomString = () =>
-    Math.random()
-    .toString(36)
-    .substring(2);
+    nanoid(36);

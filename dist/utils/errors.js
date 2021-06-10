@@ -1,5 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.InvalidIdPrefix = exports.InvalidDocument = exports.UnavailableIpfs = exports.IllegalCreate = exports.InvalidDid = exports.InvalidService = exports.DuplicateService = exports.InvalidPublicKey = exports.DuplicatePublicKey = exports.InvalidAuthentication = exports.DuplicateAuthentication = exports.BaseError = void 0;
 class BaseError extends Error {
     constructor(message, code, props) {
@@ -11,6 +10,7 @@ class BaseError extends Error {
         });
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, this.constructor);
+
             return;
         }
         this.stack = (new Error(message)).stack;

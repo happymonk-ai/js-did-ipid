@@ -98,7 +98,7 @@ class Document {
 
     #refreshUpdated = () => {
         this.#content.updated = new Date().toISOString();
-    }
+    };
 }
 
 const createDocument = (did, content) => {
